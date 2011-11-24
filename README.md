@@ -5,16 +5,14 @@ Building
 --------
 
 To build the website, download it and execute
-{pygmentize:: text}
-mvn clean package
-{pigmentyze}
+
+    mvn clean package
 
 Running
 -------
 Start locally jetty web server
-{pygmentize:: text}
-mvn jetty:run
-{pigmentyze}
+
+    mvn jetty:run
 
 and open the following url in your browser
 
