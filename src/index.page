@@ -1,0 +1,18 @@
+---
+title: Fuse By Example
+in_menu: true
+--- name:head pipeline:ssp
+<link rel="alternate" title="${project_name} RSS" href="blog/index.rss" type="application/rss+xml">
+
+--- name:overview pipeline:scaml
+
+%h1 Fuse By Example #{project_version}
+
+#{project_slogan}
+
+--- name:content pipeline:markdown 
+
+Fuse By Example
+===============
+
+Write-ups and sample code projects showing the many different integration problems you can solve with the Apache projects (Camel, Cxf, ActiveMq, ServiceMix) supported by FuseSource.

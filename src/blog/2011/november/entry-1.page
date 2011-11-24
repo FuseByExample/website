@@ -1,0 +1,81 @@
+---
+blog_post: true
+title: HelloCamel - Simple Camel project for creating an OSGi bundle
+author: Charles Moulliard
+author_url: http://cmoulliard.blogpost.com
+created_at: 2011-11-24 15:04:00 -0000
+layout: /WEB-INF/scalate/layouts/blog-post.jade
+---
+
+HelloCamel - Simple Camel project for creating an OSGi bundle
+
+Using Apache Camel to create integration routes is easy, and fun, but its not as obvious how to put a Camel route into an
+OSGi bundle for deployment into an integration server like Apache ServiceMix.
+The full code and running instructions are located at https://github.com/FuseByExample/HelloCamel.
+
+For the purposes of this sample, we're going to use a very simple Camel route that is a Request-Response HTTP listener
+that takes a string message body and prefixes 'Hello '.
+
+{pygmentize:: xml}
+<camelContext xmlns="http://camel.apache.org/schema/spring">
+   <route id="HelloWorldRoute">
+       <from uri="jetty:http://0.0.0.0:8888/hellocamel"/>
+       <transform>
+          <language language="simple">Hello\${body}</language>
+       </transform>
+   </route>
+</camelContext>
+{pygmentize}
+
+This route uses the Camel-Jetty component to start an HTTP listener on port 8888. It takes the message and uses Camel's Simple expression
+    language to prefix 'Hello ' to the message body. Pretty straightforward. You could use the Fuse IDE to create or edit this route visually...
+
+<img src="/blog/2011/images/Fuse-IDE-Camel-Route.png" alt="text"/>
+
+To be able to deploy this project into an OSGi container like ServiceMix, you'd want to package this up as an OSGi bundle. Within an Apache Maven project
+ the important bits are 1) adding the maven-bundle-plugin as an extension, and 2) setting the project packaging to 'bundle' as below in the pom.xml fragment.
+  This instructs Maven as part of the packaging step to scan all the resources included in the resulting jar file, and create the extra OSGi entries in the META-INF/MANIFEST.MF file per the OSGi specification.
+
+
+{pygmentize:: xml}
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.fusesource.byexample.hellocamel</groupId>
+    <artifactId>HelloCamel</artifactId>
+    <version>1.0</version>
+    <packaging>bundle</packaging>
+
+    <!-- snip -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.4</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+           <!-- snip -->
+        </plugins>
+    </build>
+</project>
+{pygmentize}
+
+Once you've created, and built ('mvn clean install'), your Camel OSGi bundle you can deploy into ServiceMix using the ServiceMix console commands. Note for this project you to install the
+ camel-jetty feature first, as this project will look for those OSGi shared bundles to be installed and started, and by default in ServiceMix they are not.
+
+
+karaf@root> features:install camel-jetty
+karaf@root> osgi:install -s mvn:com.fusesource.byexample.hellocamel/HelloCamel
+
+
+This project also includes an example of how to create JUnit test for your Camel route, and a standalone client that you can use to test your Camel route deployed in ServiceMix.
+
+Happy Camel Riding...
